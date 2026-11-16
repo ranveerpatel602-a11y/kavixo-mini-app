@@ -54,3 +54,24 @@
 .art{height:145px;overflow:hidden;display:grid;place-items:center;position:relative}.art .nft-art-svg{width:100%;height:100%;filter:drop-shadow(0 4px 8px #0008)}.art-violet{background:radial-gradient(circle,#553a70,#1a1421)!important}.art-blue{background:radial-gradient(circle,#22516b,#101e28)!important}.art-green{background:radial-gradient(circle,#355c40,#111d16)!important}.modalart{height:180px;overflow:hidden}.modalart .nft-art-svg{width:100%;height:100%}
 .gamecards{display:grid;grid-template-columns:1fr 1fr;gap:11px}.gamecard{border:1px solid #d9b66f55;border-radius:15px;background:linear-gradient(145deg,#20190e,#0c0c0b);padding:10px;text-align:left;min-width:0}.gamecard b,.gamecard small{display:block}.gamecard b{font-size:12px;margin:10px 2px 4px}.gamecard small{font-size:9px;color:#aaa18f;min-height:27px}.gamepreview{height:105px;border-radius:10px;position:relative;overflow:hidden;background:linear-gradient(90deg,#111 0 31%,#383126 32% 34%,#111 35% 65%,#383126 66% 68%,#111 69%)}.roadline{position:absolute;left:50%;height:100%;border-left:3px dashed #d6b66b}.roadcar,.fishshape{position:absolute;left:42%;top:40%;font-size:35px;color:#f3c45f;text-shadow:0 0 13px #f4b72c;transform:rotate(90deg)}.gamepreview.water{background:radial-gradient(ellipse at 50% 25%,#3b6c78,#10242d 70%)}.fishshape{left:39%;top:32%;transform:none;color:#a8e9e6}.arcadegame{border:1px solid #d9b66f55;border-radius:15px;padding:13px;background:linear-gradient(145deg,#1b170f,#0c0c0a);margin-top:12px}.arcadegame b{font-size:10px;color:#f3c45f}.carroad{height:200px;position:relative;overflow:hidden;margin:12px auto;width:78%;border-left:3px solid #bd9145;border-right:3px solid #bd9145;border-radius:12px;background:linear-gradient(90deg,#181818 0 32%,#3b352b 33% 34%,#181818 35% 65%,#3b352b 66% 67%,#181818 68%)}.lane-mark{position:absolute;top:0;bottom:0;border-left:2px dashed #bba36c55;left:33.3%}.lane-mark.m2{left:66.6%}.traffic,.playercar{position:absolute;bottom:55%;font-size:34px;color:#e2aa48;text-shadow:0 0 12px #f5bd4c;transform:rotate(90deg)}.playercar{bottom:12%;color:#fff0a0;font-size:40px;transition:left .15s}.gamecontrols{display:flex;gap:12px}.gamecontrols button{flex:1;border:1px solid #d9b66f55;border-radius:10px;padding:13px;background:#282011;color:#ffdb7c;font-weight:800}.fishingpond{height:130px;display:grid;place-items:center;margin:12px 0;border-radius:12px;color:#c6eee4;font-size:11px;background:radial-gradient(ellipse at 50% 25%,#3d7581,#17404b 45%,#0d2934 100%);border-bottom:8px solid #b58b3c}
 @media(max-width:390px){.minerbot3d{left:8%;width:172px;height:235px}.scene-coin{width:112px;height:112px}.art{height:128px}}
+
+/* Digging animation: swinging pickaxe strikes branded KVX ore */
+.mine-scene{isolation:isolate}.mine-scene:after{content:"";position:absolute;inset:auto 0 0;height:34%;z-index:1;background:linear-gradient(0deg,#100a03e8,transparent);pointer-events:none}
+.minerbot3d{width:225px;height:285px;left:7%;bottom:7px;z-index:5;filter:drop-shadow(0 14px 12px #000d) drop-shadow(0 0 19px #d99a2d66);animation:minerIdle 3.4s ease-in-out infinite}
+.botBody{transform-origin:125px 240px;animation:bodyDig 1.15s ease-in-out infinite}
+.digArm{transform-origin:170px 163px;animation:pickStrike 1.15s cubic-bezier(.5,0,.7,1) infinite}
+.kvxRock{transform-origin:center;filter:drop-shadow(0 0 10px #f5bf4a99)}
+.rockOne{animation:orePop 1.15s ease-out infinite}.rockTwo{animation:orePop 1.15s ease-out .18s infinite}
+@keyframes minerIdle{0%,100%{translate:0 0}50%{translate:0 -4px}}
+@keyframes bodyDig{0%,65%,100%{transform:translateY(0) rotate(0)}78%{transform:translateY(5px) rotate(1deg)}}
+@keyframes pickStrike{0%,15%{transform:rotate(-28deg)}52%{transform:rotate(28deg)}65%,100%{transform:rotate(-28deg)}}
+@keyframes orePop{0%,45%,100%{transform:translateY(8px) scale(.82);opacity:.35}58%{transform:translateY(-8px) scale(1.08);opacity:1}78%{transform:translateY(0) scale(1);opacity:.9}}
+.scene-coin{z-index:2;transform:translate(13px,-12px) rotate(-9deg)}
+.ore{z-index:3;filter:drop-shadow(0 0 10px #f3b744)}
+.mine-cart{z-index:4}.scene-sign{z-index:6}
+.game-howto{font-size:11px;line-height:1.55;color:#c4bcae;margin:8px 0 12px}.game-howto b{color:#f5d17a}
+.carroad{background:repeating-linear-gradient(90deg,#141414 0 31%,#40392e 32% 33%,#141414 34% 65%,#40392e 66% 67%,#141414 68%)}
+.traffic{font-size:26px;color:#ff7b53;text-shadow:0 0 12px #ff603a}
+.fishingpond{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 15%,#5d9aa0,#1a4b55 50%,#0b2632);box-shadow:inset 0 -16px 25px #061a25}
+.fishingpond:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(170deg,transparent 0 17px,#a8e9e455 18px 19px,transparent 20px 35px);animation:waterFlow 3s linear infinite}
+@keyframes waterFlow{to{background-position:60px 0}}
