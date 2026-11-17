@@ -48,3 +48,12 @@ input:focus,textarea:focus,select:focus{border-color:#dca84f!important;box-shado
 .boot-word{color:#ffe2a0!important;letter-spacing:5px!important}
 @media(max-width:390px){.app{padding-left:13px!important;padding-right:13px!important}.kavixo-artwork-stage,.kavixo-hand-stage{min-height:260px!important}.mine-stats{gap:6px!important}.mine-stats>div{padding:10px 6px!important}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+
+/* KAVIXO: clean coin-only startup; no rings, frames, circles or loader decorations */
+.boot-screen{display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important;background:#070707!important}
+.boot-logo{width:168px!important;height:168px!important;display:flex!important;align-items:center!important;justify-content:center!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:0!important;animation:none!important}
+.boot-logo:before,.boot-logo:after{content:none!important;display:none!important}
+.boot-logo img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:drop-shadow(0 0 16px rgba(232,183,79,.32))!important;animation:none!important}
+.boot-word,.boot-tag,.boot-loader,.boot-status,.boot-sub{display:none!important}
+.kavixo-hand-stage,.kavixo-artwork-stage,.kavixo-floating-hand,.kavixo-floating-coin,.robot-hand-wrap,.robot-hand,.coin-aura,.hand-energy-ring,.hand-circuit,.hand-stage-caption{display:none!important}
