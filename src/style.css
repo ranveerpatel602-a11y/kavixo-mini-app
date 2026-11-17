@@ -159,3 +159,32 @@ nav{left:50%;transform:translateX(-50%);width:min(100%,520px);padding-left:5px;p
 nav button{min-width:0;flex:1}
 nav button small{font-size:clamp(7px,2vw,9px)}
 @media(max-width:360px){.app{padding-left:12px;padding-right:12px}.profile-hero{grid-template-columns:68px minmax(0,1fr);padding:12px}.profile-orbit{scale:.78}.profile-identity h3{font-size:17px}.profile-stat-grid{gap:7px}.profile-stat-grid>div{padding:10px 8px}}
+
+
+/* KAVIXO premium startup overlay */
+.boot-screen{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 42%,#5b3c1460,transparent 38%),#070707;transition:opacity .45s ease,visibility .45s ease}
+.boot-screen.boot-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.boot-logo{width:132px;height:132px;border-radius:50%;display:grid;place-items:center;border:1px solid #f5d47e;box-shadow:0 0 0 7px #b47a2425,0 0 45px #e5ad4380,inset 0 0 24px #f5d47e35;animation:bootPulse 1.8s ease-in-out infinite}
+.boot-logo img{width:86%;height:86%;object-fit:contain;filter:drop-shadow(0 0 13px #e8b74f99)}
+.boot-word{margin-top:25px;font:800 30px 'Space Grotesk';letter-spacing:7px;color:#ffe2a0;text-shadow:0 0 20px #e3ac4d88}
+.boot-tag{margin-top:7px;font:700 10px 'DM Sans';letter-spacing:4px;color:#c69b50}
+.boot-loader{width:190px;height:3px;background:#3b2b17;border-radius:9px;overflow:hidden;margin-top:38px}
+.boot-loader i{display:block;width:35%;height:100%;background:linear-gradient(90deg,#bd832b,#fff0b3,#d39a3b);box-shadow:0 0 12px #ffd36c;animation:bootLoad 1.3s ease-in-out infinite}
+.boot-status{margin-top:18px;font:700 9px 'DM Sans';letter-spacing:2px;color:#f0d18a}
+.boot-sub{margin-top:8px;font-size:7px;letter-spacing:1.3px;color:#82745c}
+@keyframes bootLoad{0%{transform:translateX(-110%)}100%{transform:translateX(390%)}}
+@keyframes bootPulse{0%,100%{transform:scale(.97);box-shadow:0 0 0 7px #b47a2425,0 0 34px #e5ad4360}50%{transform:scale(1.03);box-shadow:0 0 0 10px #b47a2420,0 0 55px #e5ad43a0}}
+/* Cleaner ore movement: refined luminous energy particles instead of chunky crystals */
+.ore-stream{position:absolute;left:25%;right:24%;bottom:108px;height:36px;display:flex;align-items:center;justify-content:space-around;z-index:2;pointer-events:none}
+.ore-stream i{width:7px;height:7px;border-radius:2px;background:linear-gradient(135deg,#fff7d2,#f4c45e 48%,#a96d1d);box-shadow:0 0 9px #ffd66d,0 0 18px #e6a83d88;transform:rotate(45deg);animation:energyFlow 1.7s ease-in-out infinite}
+.ore-stream i:nth-child(2n){width:4px;height:4px;animation-delay:.35s}
+.ore-stream i:nth-child(3n){animation-delay:.7s}
+.flow-particle{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff1bd;box-shadow:0 0 8px 3px #eab84f;z-index:3;pointer-events:none}
+.flow-a{left:29%;top:54%;animation:flowArc 2.2s linear infinite}
+.flow-b{left:40%;top:65%;animation:flowArc 2.6s linear .5s infinite}
+.flow-c{right:32%;top:57%;animation:flowArc 2.4s linear .9s infinite}
+.flow-d{right:42%;top:71%;animation:flowArc 2.8s linear 1.3s infinite}
+@keyframes energyFlow{0%,100%{opacity:.45;transform:translateY(5px) rotate(45deg) scale(.8)}50%{opacity:1;transform:translateY(-7px) rotate(135deg) scale(1.15)}}
+@keyframes flowArc{0%{transform:translate(0,12px) scale(.4);opacity:0}25%{opacity:1}100%{transform:translate(28px,-28px) scale(1.1);opacity:0}}
+.profile-avatar{border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff0bd,#bd8735 44%,#30200d 82%);color:#241706}
+.profile-avatar svg{width:31px;height:31px;stroke-width:1.8}
