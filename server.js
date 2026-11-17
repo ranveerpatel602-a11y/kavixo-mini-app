@@ -111,7 +111,7 @@ async function auth(req,res,next) {
       'INSERT INTO kvxn_users(telegram_id,first_name) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET first_name=EXCLUDED.first_name',
       [req.tgUser.id, req.tgUser.firstName]
     );
-    const match = /^ref_(\\d+)$/.exec(req.tgUser.startParam || '');
+    const match = /^ref_(\d+)$/.exec(req.tgUser.startParam || '');
     if (match && match[1] !== req.tgUser.id) {
       await pool.query('INSERT INTO referrals(inviter_telegram_id,invitee_telegram_id) VALUES($1,$2) ON CONFLICT(invitee_telegram_id) DO NOTHING',[match[1],req.tgUser.id]);
     }
