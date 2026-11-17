@@ -1,0 +1,50 @@
+/* KAVIXO MINER — premium rebuild layer */
+:root{color-scheme:dark;--kx-bg:#070707;--kx-panel:rgba(20,17,12,.84);--kx-panel-2:rgba(31,25,16,.92);--kx-gold:#f4c66b;--kx-gold-2:#b77a27;--kx-text:#fff4dc;--kx-muted:#a99a7d;--kx-line:rgba(244,198,107,.18);--kx-glow:0 0 32px rgba(225,165,67,.16)}
+*{box-sizing:border-box}
+html,body,#root{min-height:100%;background:#070707!important}
+body{margin:0;color:var(--kx-text)!important;background:radial-gradient(ellipse at 50% 5%,rgba(151,94,26,.24),transparent 36%),radial-gradient(ellipse at 0% 55%,rgba(115,72,21,.12),transparent 32%),radial-gradient(ellipse at 100% 80%,rgba(155,102,34,.10),transparent 34%),linear-gradient(180deg,#090806 0%,#080807 55%,#050505 100%)!important;font-family:Inter,"DM Sans",system-ui,sans-serif!important}
+body:before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.16;background-image:linear-gradient(rgba(255,218,148,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,218,148,.045) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,black,transparent 78%)}
+#root{position:relative;isolation:isolate}
+.app{position:relative;z-index:1;width:100%;max-width:520px!important;min-height:100dvh;margin:0 auto;padding:16px 16px 112px!important;overflow-x:hidden;background:transparent!important}
+.app:before{content:"";position:absolute;top:70px;left:50%;width:330px;height:330px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(190,128,43,.13),transparent 68%);filter:blur(14px);pointer-events:none;z-index:-1}
+header,.topbar,.app-header{background:transparent!important;border:0!important;box-shadow:none!important}
+section,.section,.dashboard-panel,.profile-panel,.mission-card,.task-card,.wallet-card,.stat-card,.leaderboard-card,.nft-card,.quick button,.mine-stats>div{background:linear-gradient(145deg,rgba(35,28,18,.92),rgba(14,13,11,.94))!important;border:1px solid var(--kx-line)!important;border-radius:19px!important;box-shadow:inset 0 1px rgba(255,239,204,.055),0 12px 34px rgba(0,0,0,.28)!important}
+button{font-family:inherit}
+button:not(nav button){transition:transform .2s ease,border-color .2s ease,filter .2s ease,box-shadow .2s ease}
+button:active{transform:scale(.975)}
+h1,h2,h3,h4,.mine-title h2,.hero-logo{color:var(--kx-text)!important}
+small,.muted,.description,.mine-title p,.mine-stats small{color:var(--kx-muted)!important}
+.hero-logo{height:125px!important;margin:2px auto 10px!important;display:flex;align-items:center;justify-content:center;position:relative}
+.hero-logo:after{content:"";position:absolute;inset:12px 18%;border-radius:50%;background:radial-gradient(circle,rgba(226,166,67,.18),transparent 68%);filter:blur(12px);z-index:-1}
+.hero-logo img{filter:drop-shadow(0 0 18px rgba(237,184,85,.36))!important}
+.mine-title{margin:12px 0 14px!important}
+.mine-title h2{font-size:clamp(21px,6vw,27px)!important;letter-spacing:1.5px!important;font-weight:900!important;text-shadow:0 3px 22px rgba(230,174,82,.22)}
+.mine-title em,.badge,.status-pill{background:rgba(235,184,91,.12)!important;color:#f6d48f!important;border:1px solid rgba(235,184,91,.28)!important;border-radius:999px!important}
+.mine-stats{gap:9px!important}
+.mine-stats>div{padding:13px 10px!important;min-width:0}
+.mine-stats b,.balance-value,.stat-value{color:#ffe0a0!important;font-size:clamp(16px,4.8vw,22px)!important;font-weight:850!important;letter-spacing:.2px}
+.kavixo-artwork-stage,.kavixo-hand-stage{position:relative!important;min-height:290px!important;border:1px solid rgba(241,190,94,.20)!important;border-radius:26px!important;overflow:hidden!important;background:radial-gradient(ellipse at 50% 68%,rgba(213,145,45,.24),transparent 46%),radial-gradient(ellipse at 50% 20%,rgba(109,73,28,.22),transparent 56%),linear-gradient(155deg,rgba(36,28,17,.94),rgba(8,8,7,.98))!important;box-shadow:inset 0 0 50px rgba(214,153,56,.08),0 18px 45px rgba(0,0,0,.42)!important}
+.kavixo-artwork-stage:before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(ellipse at 50% 80%,transparent 0 27px,rgba(242,193,103,.075) 28px 29px,transparent 30px 56px);opacity:.5;pointer-events:none}
+.kavixo-floating-coin{filter:drop-shadow(0 8px 22px rgba(248,194,89,.55))!important;animation:kxCoinFloat 4s ease-in-out infinite!important}
+.kavixo-floating-hand{filter:drop-shadow(0 15px 28px rgba(215,153,55,.28))!important;animation:kxHandFloat 5s ease-in-out infinite!important}
+@keyframes kxCoinFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+@keyframes kxHandFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.start-mine,.primary-button,.claim-button,.action-primary{background:linear-gradient(110deg,#8f5c1e,#f4ce7c 48%,#b77b2b)!important;color:#1a1107!important;border:1px solid #f5d995!important;border-radius:15px!important;font-weight:900!important;letter-spacing:.5px!important;box-shadow:0 8px 25px rgba(208,145,47,.22),inset 0 1px rgba(255,255,255,.45)!important}
+.quick{gap:9px!important}
+.quick button{padding:14px 7px!important;color:#f6d797!important}
+.quick button svg{color:#eab95f!important}
+.quick b{color:#fff0ce!important}
+.dashboard-panel{padding:16px!important;margin-top:15px!important}
+nav{position:fixed!important;z-index:90!important;bottom:max(10px,env(safe-area-inset-bottom))!important;left:50%!important;transform:translateX(-50%)!important;width:min(calc(100% - 22px),496px)!important;padding:9px 8px!important;display:flex!important;gap:4px!important;border:1px solid rgba(239,187,91,.22)!important;border-radius:22px!important;background:rgba(12,11,9,.88)!important;backdrop-filter:blur(22px)!important;box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.06)!important}
+nav button{flex:1!important;min-width:0!important;border:0!important;border-radius:14px!important;background:transparent!important;color:#9f927b!important;padding:8px 2px!important}
+nav button.active,nav button[aria-current="page"]{background:linear-gradient(145deg,rgba(225,168,77,.2),rgba(111,71,23,.14))!important;color:#f5ce80!important;box-shadow:inset 0 0 0 1px rgba(238,189,100,.2)!important}
+nav button svg{color:inherit!important}
+input,textarea,select{background:rgba(8,8,7,.78)!important;color:#fff0d0!important;border:1px solid rgba(234,183,91,.24)!important;border-radius:12px!important;outline:none!important}
+input:focus,textarea:focus,select:focus{border-color:#dca84f!important;box-shadow:0 0 0 3px rgba(220,168,79,.12)!important}
+.profile-hero,.profile-panel,.profile-stat-grid>div,.achievement-row span{background:linear-gradient(145deg,rgba(34,27,17,.94),rgba(12,12,10,.95))!important;border-color:var(--kx-line)!important}
+.profile-identity h3,.profile-stat-grid b{color:#ffe1a3!important}
+.boot-screen{background:radial-gradient(ellipse at 50% 42%,rgba(168,108,35,.25),transparent 40%),#070706!important}
+.boot-logo{border-color:#e8bd6e!important;box-shadow:0 0 0 7px rgba(180,122,36,.16),0 0 45px rgba(229,173,67,.45)!important}
+.boot-word{color:#ffe2a0!important;letter-spacing:5px!important}
+@media(max-width:390px){.app{padding-left:13px!important;padding-right:13px!important}.kavixo-artwork-stage,.kavixo-hand-stage{min-height:260px!important}.mine-stats{gap:6px!important}.mine-stats>div{padding:10px 6px!important}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
