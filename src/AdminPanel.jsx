@@ -11,10 +11,10 @@ async function api(path,options={}) {
 }
 function Notice({message,error}){if(!message)return null;return <div className={'admin-notice '+(error?'is-error':'is-ok')}>{error?<AlertCircle/>:<CheckCircle2/>}{message}</div>}
 
-export function RedeemPanel(){
+export function RedeemPanel({onBalance}){
  const [code,setCode]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState(false),[balance,setBalance]=useState(null);
  useEffect(()=>{api('/api/me').then(d=>setBalance(d.user.balance)).catch(e=>{setError(true);setMessage(e.message)})},[]);
- async function claim(e){e.preventDefault();setBusy(true);setMessage('');setError(false);try{const d=await api('/api/redeem',{method:'POST',body:JSON.stringify({code})});setBalance(d.balance);setCode('');setMessage('Success! '+Number(d.points).toLocaleString()+' KVXN points added.')}catch(e){setError(true);setMessage(e.message)}finally{setBusy(false)}}
+ async function claim(e){e.preventDefault();setBusy(true);setMessage('');setError(false);try{const d=await api('/api/redeem',{method:'POST',body:JSON.stringify({code})});setBalance(d.balance);onBalance?.(Number(d.balance));setCode('');setMessage('Success! '+Number(d.points).toLocaleString()+' KVXN points added.')}catch(e){setError(true);setMessage(e.message)}finally{setBusy(false)}}
  return <section className="section admin-section"><div className="heading"><small>KAVIXO REWARDS</small><h2>Redeem code</h2></div><div className="redeem-box"><Gift/><p>Enter a code shared by the KAVIXO team to claim KVXN in-app points.</p><form onSubmit={claim}><input value={code} onChange={e=>setCode(e.target.value.toUpperCase())} placeholder="ENTER REDEEM CODE" maxLength={40}/><button disabled={busy||!code.trim()}>{busy?'CHECKING…':'CLAIM POINTS'}</button></form>{balance!==null&&<div className="redeem-balance">Current balance <b>{Number(balance).toLocaleString()} KVXN</b></div>}<Notice message={message} error={error}/></div></section>
 }
 
