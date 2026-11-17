@@ -242,3 +242,9 @@ html,body{min-height:100%;background:#070707}
 @keyframes kavixoHandFloat{0%,100%{margin-bottom:0}50%{margin-bottom:8px}}
 @keyframes kavixoAura{to{transform:translateX(-50%) rotate(360deg)}}
 @media(max-width:390px){.kavixo-hand-stage{height:350px}.floating-kavixo-coin{width:148px;height:148px;top:22px}.coin-aura{width:190px;top:44px}.robot-hand-wrap{height:205px;bottom:31px}.hand-stage-caption{font-size:7px;letter-spacing:.7px}}
+
+/* Exact supplied KAVIXO mining artwork: preserve the full original background and composition */
+.kavixo-artwork-stage{height:auto!important;aspect-ratio:3/4;min-height:0;padding:0!important;overflow:hidden;border:1px solid #d6a74488;border-radius:20px;background:#080704;box-shadow:0 12px 34px #000b,0 0 24px #d49a2b20}
+.kavixo-mining-artwork{display:block;width:100%;height:100%;object-fit:cover;object-position:center;animation:kavixoArtworkFloat 4s ease-in-out infinite;transform-origin:center}
+@keyframes kavixoArtworkFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.006)}}
+@media(max-width:390px){.kavixo-artwork-stage{aspect-ratio:3/4}}
