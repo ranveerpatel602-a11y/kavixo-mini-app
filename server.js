@@ -57,6 +57,14 @@ async function migrate() {
       ('Explore KAVIXO roadmap','Discover upcoming project milestones.',100,'route')
     ) AS v(title,description,reward,icon)
     WHERE NOT EXISTS (SELECT 1 FROM app_missions);
+    CREATE TABLE IF NOT EXISTS admin_balance_adjustments (
+      id BIGSERIAL PRIMARY KEY,
+      admin_telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      target_telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      delta BIGINT NOT NULL CHECK (delta <> 0),
+      balance_after BIGINT NOT NULL CHECK (balance_after >= 0),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS community_channels (
       id BIGSERIAL PRIMARY KEY,
       platform TEXT NOT NULL CHECK (platform IN ('telegram','youtube')),
@@ -137,6 +145,46 @@ app.post('/api/redeem', auth, async (req,res) => {
   } finally { client.release(); }
 });
 
+app.get('/api/leaderboard', async (_req,res) => {
+  const [users,total] = await Promise.all([
+    pool.query('SELECT ROW_NUMBER() OVER (ORDER BY balance DESC, created_at ASC) AS rank, first_name, balance FROM kvxn_users WHERE balance > 0 ORDER BY balance DESC, created_at ASC LIMIT 50'),
+    pool.query('SELECT COUNT(*)::int AS total FROM kvxn_users')
+  ]);
+  res.json({ users:users.rows, totalUsers:total.rows[0].total });
+});
+app.get('/api/admin/users', auth, admin, async (req,res) => {
+  const search=String(req.query.search||'').trim().slice(0,80);
+  const values=[];
+  let where='';
+  if(search){values.push('%'+search+'%');where='WHERE first_name ILIKE $1 OR telegram_id ILIKE $1';}
+  const {rows}=await pool.query(`SELECT telegram_id,first_name,balance,created_at FROM kvxn_users ${where} ORDER BY balance DESC, created_at ASC LIMIT 100`,values);
+  res.json({users:rows});
+});
+app.patch('/api/admin/users/:telegramId/balance', auth, admin, async (req,res) => {
+  const target=String(req.params.telegramId||'').trim();
+  const delta=Number(req.body?.delta);
+  if(!target || target.length>40) return res.status(400).json({error:'Invalid Telegram user ID'});
+  if(!Number.isSafeInteger(delta) || delta===0 || Math.abs(delta)>1000000000) return res.status(400).json({error:'Enter a non-zero whole-number adjustment up to 1,000,000,000'});
+  const client=await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const found=await client.query('SELECT balance FROM kvxn_users WHERE telegram_id=$1 FOR UPDATE',[target]);
+    if(!found.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'User not found'});}
+    const next=BigInt(found.rows[0].balance)+BigInt(delta);
+    if(next<0n){await client.query('ROLLBACK');return res.status(400).json({error:'Points cannot go below zero'});}
+    const updated=await client.query('UPDATE kvxn_users SET balance=$1::bigint WHERE telegram_id=$2 RETURNING balance',[next.toString(),target]);
+    await client.query('INSERT INTO admin_balance_adjustments(admin_telegram_id,target_telegram_id,delta,balance_after) VALUES($1,$2,$3,$4)',[req.tgUser.id,target,delta,next.toString()]);
+    await client.query('COMMIT');
+    res.json({ok:true,telegramId:target,delta,balance:updated.rows[0].balance});
+  } catch(e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({error:'Could not update user points'});
+  } finally {client.release();}
+});
+app.get('/api/admin/balance-adjustments', auth, admin, async (_req,res) => {
+  const {rows}=await pool.query(`SELECT a.id,a.admin_telegram_id,a.target_telegram_id,u.first_name AS target_name,a.delta,a.balance_after,a.created_at FROM admin_balance_adjustments a JOIN kvxn_users u ON u.telegram_id=a.target_telegram_id ORDER BY a.created_at DESC LIMIT 30`);
+  res.json({adjustments:rows});
+});
 app.get('/api/admin/redeem-codes', auth, admin, async (_req,res) => {
   const { rows } = await pool.query('SELECT code,points,max_claims,claims_count,expires_at,active,created_at FROM redeem_codes ORDER BY created_at DESC LIMIT 100');
   res.json({ codes:rows });
