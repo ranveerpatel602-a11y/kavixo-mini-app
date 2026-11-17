@@ -268,3 +268,21 @@ html,body{min-height:100%;background:#070707}
 .kavixo-artwork-stage:after{z-index:1!important;pointer-events:none!important}
 .kavixo-floating-coin{z-index:2!important}
 .kavixo-floating-hand{z-index:3!important}
+
+
+/* Reapply the original dark-gold KAVIXO miner backdrop, behind both foreground PNGs */
+.kavixo-artwork-stage{
+ background:radial-gradient(ellipse at 50% 68%,#9b641d55 0,transparent 42%),radial-gradient(ellipse at 50% 35%,#34220d 0,#100d08 58%,#070707 100%)!important;
+}
+.kavixo-artwork-stage:before{
+ content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;z-index:0!important;
+ background:repeating-linear-gradient(0deg,transparent 0 37px,#d9a83b0b 38px 39px),repeating-linear-gradient(90deg,transparent 0 37px,#d9a83b0b 38px 39px)!important;
+ mask-image:linear-gradient(transparent,#000 30%,#000 85%,transparent)!important;
+}
+.kavixo-artwork-stage:after{
+ content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;z-index:1!important;
+ background:radial-gradient(circle at 50% 48%,#ffda7255 0 1px,transparent 3px),radial-gradient(circle at 15% 42%,#ffcf5c 0 2px,transparent 4px),radial-gradient(circle at 85% 35%,#ffcf5c 0 2px,transparent 4px)!important;
+ filter:drop-shadow(0 0 8px #f6bf48)!important;
+}
+.kavixo-floating-coin,.kavixo-floating-hand{position:absolute!important}
+.kavixo-floating-coin{z-index:2!important}.kavixo-floating-hand{z-index:3!important}
