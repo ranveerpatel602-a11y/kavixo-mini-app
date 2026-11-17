@@ -209,3 +209,6 @@ html,body{min-height:100%;background:#070707}
 .leader-user small{font-size:7px;letter-spacing:1px;color:#9c927d}
 .leader-row>strong{font:700 11px 'Space Grotesk';color:#f5d88e;text-align:right;white-space:nowrap}
 .leader-row>strong small{font:600 7px 'DM Sans';color:#a99b80}
+
+/* Compact wallet summary */
+.wallet-summary{padding:12px 14px}.wallet-summary .between:first-child b{font-size:12px}.wallet-summary .between:first-child small{font-size:7px;letter-spacing:.8px}.wallet-summary .wallet-row{font-size:10px;line-height:1.35;margin-top:7px}.wallet-summary .wallet-row strong,.wallet-summary .wallet-row b{font-size:10px;color:#f1d58f}.wallet-summary p{font-size:8px;margin:8px 0 0;line-height:1.4}
