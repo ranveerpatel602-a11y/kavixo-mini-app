@@ -23,6 +23,14 @@ async function migrate() {
       balance BIGINT NOT NULL DEFAULT 0 CHECK (balance >= 0),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS referrals (
+      id BIGSERIAL PRIMARY KEY,
+      inviter_telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      invitee_telegram_id TEXT NOT NULL UNIQUE REFERENCES kvxn_users(telegram_id),
+      joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CHECK (inviter_telegram_id <> invitee_telegram_id)
+    );
+    CREATE INDEX IF NOT EXISTS referrals_inviter_idx ON referrals(inviter_telegram_id, joined_at DESC);
     CREATE TABLE IF NOT EXISTS redeem_codes (
       code TEXT PRIMARY KEY,
       points INTEGER NOT NULL CHECK (points > 0),
@@ -92,7 +100,7 @@ function parseTelegramInitData(initData) {
   if (!authDate || Math.abs(Date.now()/1000 - authDate) > 86400) throw new Error('Telegram session expired. Reopen the app.');
   const user = JSON.parse(params.get('user') || 'null');
   if (!user?.id) throw new Error('Telegram user not found');
-  return { id: String(user.id), firstName: String(user.first_name || 'Explorer').slice(0,80) };
+  return { id: String(user.id), firstName: String(user.first_name || 'Explorer').slice(0,80), startParam: String(params.get('start_param') || '') };
 }
 
 async function auth(req,res,next) {
@@ -103,6 +111,10 @@ async function auth(req,res,next) {
       'INSERT INTO kvxn_users(telegram_id,first_name) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET first_name=EXCLUDED.first_name',
       [req.tgUser.id, req.tgUser.firstName]
     );
+    const match = /^ref_(\\d+)$/.exec(req.tgUser.startParam || '');
+    if (match && match[1] !== req.tgUser.id) {
+      await pool.query('INSERT INTO referrals(inviter_telegram_id,invitee_telegram_id) VALUES($1,$2) ON CONFLICT(invitee_telegram_id) DO NOTHING',[match[1],req.tgUser.id]);
+    }
     next();
   } catch (e) { res.status(401).json({ error: e.message || 'Authentication required' }); }
 }
@@ -143,6 +155,14 @@ app.post('/api/redeem', auth, async (req,res) => {
     await client.query('ROLLBACK');
     res.status(400).json({ error:e.message || 'Could not claim code' });
   } finally { client.release(); }
+});
+
+app.get('/api/referrals', auth, async (req,res) => {
+  const [items,total] = await Promise.all([
+    pool.query('SELECT r.invitee_telegram_id AS telegram_id,u.first_name,r.joined_at FROM referrals r JOIN kvxn_users u ON u.telegram_id=r.invitee_telegram_id WHERE r.inviter_telegram_id=$1 ORDER BY r.joined_at DESC LIMIT 100',[req.tgUser.id]),
+    pool.query('SELECT COUNT(*)::int AS total FROM referrals WHERE inviter_telegram_id=$1',[req.tgUser.id])
+  ]);
+  res.json({referrals:items.rows,total:total.rows[0].total});
 });
 
 app.get('/api/leaderboard', async (_req,res) => {
