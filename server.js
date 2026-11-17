@@ -41,6 +41,22 @@ async function migrate() {
       claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       UNIQUE(code, telegram_id)
     );
+    CREATE TABLE IF NOT EXISTS app_missions (
+      id BIGSERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      reward INTEGER NOT NULL CHECK (reward > 0),
+      icon TEXT NOT NULL DEFAULT 'users',
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    INSERT INTO app_missions(title,description,reward,icon)
+    SELECT v.title,v.description,v.reward,v.icon FROM (VALUES
+      ('Join KAVIXO Community','Meet the explorers building our universe.',250,'users'),
+      ('Follow project updates','Stay up to date with announcements.',150,'send'),
+      ('Explore KAVIXO roadmap','Discover upcoming project milestones.',100,'route')
+    ) AS v(title,description,reward,icon)
+    WHERE NOT EXISTS (SELECT 1 FROM app_missions);
     CREATE TABLE IF NOT EXISTS community_channels (
       id BIGSERIAL PRIMARY KEY,
       platform TEXT NOT NULL CHECK (platform IN ('telegram','youtube')),
@@ -166,6 +182,31 @@ app.delete('/api/admin/channels/:id', auth, admin, async (req,res) => {
   if (!Number.isSafeInteger(id)) return res.status(400).json({error:'Invalid channel id'});
   const r=await pool.query('DELETE FROM community_channels WHERE id=$1',[id]);
   if (!r.rowCount) return res.status(404).json({error:'Channel not found'});
+  res.json({ok:true});
+});
+app.get('/api/missions', async (_req,res) => {
+  const {rows}=await pool.query('SELECT id,title,description,reward,icon FROM app_missions WHERE active=TRUE ORDER BY id');
+  res.json({missions:rows});
+});
+app.get('/api/admin/missions', auth, admin, async (_req,res) => {
+  const {rows}=await pool.query('SELECT id,title,description,reward,icon,active FROM app_missions ORDER BY id DESC');
+  res.json({missions:rows});
+});
+app.post('/api/admin/missions', auth, admin, async (req,res) => {
+  const title=String(req.body?.title||'').trim().slice(0,100);
+  const description=String(req.body?.description||'').trim().slice(0,240);
+  const reward=Number(req.body?.reward);
+  const icon=String(req.body?.icon||'users').toLowerCase();
+  if (!title || !description || !Number.isSafeInteger(reward) || reward<1 || reward>1000000) return res.status(400).json({error:'Enter a title, description and reward from 1 to 1,000,000'});
+  if (!['users','send','route','gift','youtube'].includes(icon)) return res.status(400).json({error:'Choose a supported mission icon'});
+  const {rows}=await pool.query('INSERT INTO app_missions(title,description,reward,icon) VALUES($1,$2,$3,$4) RETURNING id,title,description,reward,icon,active',[title,description,reward,icon]);
+  res.json({mission:rows[0]});
+});
+app.delete('/api/admin/missions/:id', auth, admin, async (req,res) => {
+  const id=Number(req.params.id);
+  if (!Number.isSafeInteger(id)) return res.status(400).json({error:'Invalid mission id'});
+  const r=await pool.query('DELETE FROM app_missions WHERE id=$1',[id]);
+  if (!r.rowCount) return res.status(404).json({error:'Mission not found'});
   res.json({ok:true});
 });
 app.get('/api/channels', async (_req,res) => {
