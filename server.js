@@ -94,7 +94,7 @@ function cleanCode(value) {
 app.get('/api/health', (_req,res) => res.json({ ok:true }));
 app.get('/api/me', auth, async (req,res) => {
   const { rows } = await pool.query('SELECT telegram_id,first_name,balance FROM kvxn_users WHERE telegram_id=$1',[req.tgUser.id]);
-  res.json({ user: rows[0] });
+  const allowed = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(x=>x.trim()).filter(Boolean);\n  res.json({ user: rows[0], isAdmin: allowed.includes(req.tgUser.id) });
 });
 app.post('/api/redeem', auth, async (req,res) => {
   const code = cleanCode(req.body?.code);
