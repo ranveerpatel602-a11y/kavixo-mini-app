@@ -172,6 +172,7 @@ app.patch('/api/admin/users/:telegramId/balance', auth, admin, async (req,res) =
     if(!found.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'User not found'});}
     const next=BigInt(found.rows[0].balance)+BigInt(delta);
     if(next<0n){await client.query('ROLLBACK');return res.status(400).json({error:'Points cannot go below zero'});}
+    if(next>9223372036854775807n){await client.query('ROLLBACK');return res.status(400).json({error:'Balance exceeds the supported points limit'});}
     const updated=await client.query('UPDATE kvxn_users SET balance=$1::bigint WHERE telegram_id=$2 RETURNING balance',[next.toString(),target]);
     await client.query('INSERT INTO admin_balance_adjustments(admin_telegram_id,target_telegram_id,delta,balance_after) VALUES($1,$2,$3,$4)',[req.tgUser.id,target,delta,next.toString()]);
     await client.query('COMMIT');
