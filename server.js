@@ -27,6 +27,7 @@ async function migrate() {
     ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_due BOOLEAN NOT NULL DEFAULT FALSE;
     ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ;
     ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_attempts INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_last_attempt_at TIMESTAMPTZ;
     CREATE TABLE IF NOT EXISTS mining_sessions (
       id BIGSERIAL PRIMARY KEY,
       telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
@@ -155,7 +156,7 @@ function admin(req,res,next) {
   next();
 }
 function cleanCode(value) {
-  return String(value || '').trim().toUpperCase().replace(/\\s+/g,'').slice(0,40);
+  return String(value || '').trim().toUpperCase().replace(/\s+/g,'').slice(0,40);
 }
 
 const MAX_MINING_SECONDS = 8 * 60 * 60;
@@ -200,21 +201,22 @@ async function processMiningJobs(telegramId = null) {
       const client = await pool.connect();
       try {
         await client.query('BEGIN');
-        const due = await client.query("SELECT id,telegram_id FROM mining_sessions WHERE notification_due=TRUE AND notification_sent_at IS NULL ORDER BY ended_at FOR UPDATE SKIP LOCKED LIMIT 1");
+        const due = await client.query("SELECT id,telegram_id FROM mining_sessions WHERE notification_due=TRUE AND notification_sent_at IS NULL AND (notification_last_attempt_at IS NULL OR notification_last_attempt_at < NOW() - INTERVAL '5 minutes') ORDER BY ended_at FOR UPDATE SKIP LOCKED LIMIT 1");
         if (!due.rowCount) { await client.query('COMMIT'); break; }
         const session = due.rows[0];
         let sent = false;
         try {
           const response = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({chat_id:session.telegram_id,text:'⛏️ Your Kavixo Mining Session Has Ended!\\n\\nYour 8-hour mining session is complete, and your earned $KVXN rewards have been added to your balance.\\n\\nTo continue earning rewards, open the Kavixo Miner bot and start a new mining session.\\n\\nKeep mining. Keep growing with Kavixo!'})
+            body:JSON.stringify({chat_id:session.telegram_id,text:'⛏️ Your Kavixo Mining Session Has Ended!\n\nYour 8-hour mining session is complete, and your earned $KVXN rewards have been added to your balance.\n\nTo continue earning rewards, open the Kavixo Miner bot and start a new mining session.\n\nKeep mining. Keep growing with Kavixo!'})
           });
           const result = await response.json().catch(()=>({ok:false}));
           sent = Boolean(response.ok && result.ok);
         } catch (e) { console.error('Mining notification delivery failed:',e.message); }
-        if (sent) await client.query('UPDATE mining_sessions SET notification_sent_at=NOW(),notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
-        else await client.query('UPDATE mining_sessions SET notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
+        if (sent) await client.query('UPDATE mining_sessions SET notification_sent_at=NOW(),notification_last_attempt_at=NOW(),notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
+        else await client.query('UPDATE mining_sessions SET notification_last_attempt_at=NOW(),notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
         await client.query('COMMIT');
+        if (!sent) break;
       } catch (e) {
         await client.query('ROLLBACK');
         console.error('Mining notification worker error:',e.message);
