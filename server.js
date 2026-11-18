@@ -23,6 +23,18 @@ async function migrate() {
       balance BIGINT NOT NULL DEFAULT 0 CHECK (balance >= 0),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    ALTER TABLE kvxn_users ADD COLUMN IF NOT EXISTS mining_remainder NUMERIC(12,3) NOT NULL DEFAULT 0;
+    CREATE TABLE IF NOT EXISTS mining_sessions (
+      id BIGSERIAL PRIMARY KEY,
+      telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      rate NUMERIC(12,6) NOT NULL DEFAULT 0.025,
+      started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      ended_at TIMESTAMPTZ,
+      elapsed_seconds BIGINT NOT NULL DEFAULT 0,
+      points_credited BIGINT NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','completed'))
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS mining_one_active_session_per_user ON mining_sessions(telegram_id) WHERE status='active';
     CREATE TABLE IF NOT EXISTS referrals (
       id BIGSERIAL PRIMARY KEY,
       inviter_telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
@@ -129,10 +141,48 @@ function cleanCode(value) {
 
 app.get('/api/health', (_req,res) => res.json({ ok:true }));
 app.get('/api/me', auth, async (req,res) => {
-  const { rows } = await pool.query('SELECT telegram_id,first_name,balance FROM kvxn_users WHERE telegram_id=$1',[req.tgUser.id]);
+  const [userResult, miningResult] = await Promise.all([
+    pool.query('SELECT telegram_id,first_name,balance FROM kvxn_users WHERE telegram_id=$1',[req.tgUser.id]),
+    pool.query("SELECT started_at,rate FROM mining_sessions WHERE telegram_id=$1 AND status='active' ORDER BY id DESC LIMIT 1",[req.tgUser.id])
+  ]);
   const allowed = (process.env.ADMIN_TELEGRAM_IDS || '').split(',').map(x=>x.trim()).filter(Boolean);
-  res.json({ user: rows[0], isAdmin: allowed.includes(req.tgUser.id) });
+  const active = miningResult.rows[0];
+  res.json({ user: userResult.rows[0], isAdmin: allowed.includes(req.tgUser.id), activeMining: active ? { startedAt: active.started_at, rate: Number(active.rate) } : null });
 });
+app.post('/api/mining/start', auth, async (req,res) => {
+  try {
+    await pool.query("INSERT INTO mining_sessions(telegram_id,rate) VALUES($1,0.025) ON CONFLICT DO NOTHING",[req.tgUser.id]);
+    const {rows}=await pool.query("SELECT started_at,rate FROM mining_sessions WHERE telegram_id=$1 AND status='active' ORDER BY id DESC LIMIT 1",[req.tgUser.id]);
+    if(!rows[0]) return res.status(409).json({error:'Could not start mining. Please try again.'});
+    res.json({ok:true,startedAt:rows[0].started_at,rate:Number(rows[0].rate)});
+  } catch(e) { res.status(500).json({error:'Could not start mining'}); }
+});
+app.post('/api/mining/stop', auth, async (req,res) => {
+  const client=await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const found=await client.query("SELECT id,started_at,rate FROM mining_sessions WHERE telegram_id=$1 AND status='active' ORDER BY id DESC LIMIT 1 FOR UPDATE",[req.tgUser.id]);
+    if(!found.rowCount) {
+      const current=await client.query('SELECT balance FROM kvxn_users WHERE telegram_id=$1',[req.tgUser.id]);
+      await client.query('COMMIT');
+      return res.json({ok:true,creditedPoints:0,balance:current.rows[0]?.balance ?? 0});
+    }
+    const session=found.rows[0];
+    const elapsed=Math.max(0,Math.floor((Date.now()-new Date(session.started_at).getTime())/1000));
+    const user=await client.query('SELECT balance,mining_remainder FROM kvxn_users WHERE telegram_id=$1 FOR UPDATE',[req.tgUser.id]);
+    const raw=elapsed*Number(session.rate)+Number(user.rows[0].mining_remainder||0);
+    const credited=Math.floor(raw+1e-9);
+    const remainder=Number((raw-credited).toFixed(3));
+    const updated=await client.query('UPDATE kvxn_users SET balance=balance+$1::bigint,mining_remainder=$2 WHERE telegram_id=$3 RETURNING balance',[credited,remainder,req.tgUser.id]);
+    await client.query("UPDATE mining_sessions SET status='completed',ended_at=NOW(),elapsed_seconds=$1,points_credited=$2 WHERE id=$3",[elapsed,credited,session.id]);
+    await client.query('COMMIT');
+    res.json({ok:true,elapsedSeconds:elapsed,creditedPoints:credited,balance:updated.rows[0].balance});
+  } catch(e) {
+    await client.query('ROLLBACK');
+    res.status(500).json({error:'Could not credit mining rewards. Your active session is preserved; please retry.'});
+  } finally { client.release(); }
+});
+
 app.post('/api/redeem', auth, async (req,res) => {
   const code = cleanCode(req.body?.code);
   if (!code) return res.status(400).json({ error:'Enter a redeem code' });
