@@ -77,14 +77,6 @@ async function migrate() {
       ('Explore KAVIXO roadmap','Discover upcoming project milestones.',100,'route')
     ) AS v(title,description,reward,icon)
     WHERE NOT EXISTS (SELECT 1 FROM app_missions);
-    CREATE TABLE IF NOT EXISTS channel_claims (
-      id BIGSERIAL PRIMARY KEY,
-      channel_id BIGINT NOT NULL REFERENCES community_channels(id) ON DELETE CASCADE,
-      telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
-      reward INTEGER NOT NULL DEFAULT 100,
-      claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE(channel_id,telegram_id)
-    );
     CREATE TABLE IF NOT EXISTS mission_claims (
       id BIGSERIAL PRIMARY KEY,
       mission_id BIGINT NOT NULL REFERENCES app_missions(id) ON DELETE CASCADE,
@@ -108,6 +100,14 @@ async function migrate() {
       url TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS channel_claims (
+      id BIGSERIAL PRIMARY KEY,
+      channel_id BIGINT NOT NULL REFERENCES community_channels(id) ON DELETE CASCADE,
+      telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      reward INTEGER NOT NULL DEFAULT 100,
+      claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(channel_id,telegram_id)
     );
   `);
 }
