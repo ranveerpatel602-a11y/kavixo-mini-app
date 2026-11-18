@@ -80,3 +80,23 @@ section,.section,.dashboard-panel,.profile-panel,.mission-card,.task-card,.walle
 nav{background:rgba(3,16,23,.94)!important;border-top:1px solid rgba(28,224,211,.24)!important;backdrop-filter:blur(18px)}
 nav button.active{color:#23e9d5!important}
 .start-mine,.goldbtn{background:linear-gradient(100deg,#08dcbf,#00b9e8)!important;color:#03151a!important;box-shadow:0 0 24px rgba(0,220,205,.24)!important}
+
+
+/* Fine-tuned JVault layout: one small TON mark beside the coin; keep normal text rhythm */
+.hero-logo{position:relative;display:flex;align-items:center;justify-content:center}
+.hero-logo .ton-float{position:absolute;z-index:4;right:calc(50% - 72px);top:calc(50% - 12px);width:19px;height:19px;display:block;pointer-events:none;animation:tonDrift 3.8s ease-in-out infinite}
+.hero-logo .ton-float img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 5px rgba(48,161,245,.55))!important}
+@keyframes tonDrift{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.hero-wordmark{font-size:clamp(17px,4.5vw,21px)!important;letter-spacing:2px!important}
+.hero-logo>small{font-size:10px!important;letter-spacing:1.5px!important}
+.app{font-size:14px}
+.app h1{font-size:clamp(21px,5.5vw,26px)!important}
+.app h2{font-size:clamp(17px,4.5vw,21px)!important}
+.app h3{font-size:16px!important}
+.app p,.app small{line-height:1.45}
+.app section{padding:16px!important}
+.app .mine-title p,.app .dashboard-panel p{font-size:13px!important}
+.app .mine-stats small,.app .between small,.app .task p{font-size:11px!important}
+.app .mine-stats b{font-size:15px!important}
+.app nav small{font-size:11px!important}
+.app .start-mine,.app .goldbtn{font-size:15px!important;min-height:48px!important}
