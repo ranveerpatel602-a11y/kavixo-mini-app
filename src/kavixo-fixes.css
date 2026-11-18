@@ -1,16 +1,28 @@
-/* KAVIXO requested polish: a single floating TON mark above the token, with no badge/circle/glow. */
+/* KAVIXO floating TON: sit beside the token with a visible gap; gold mark only. */
 .hero-logo{position:relative!important;isolation:isolate!important}
-.hero-logo:after{display:none!important;content:none!important}
 .hero-logo .ton-float{
-  position:absolute!important;z-index:5!important;left:50%!important;right:auto!important;
-  top:2px!important;bottom:auto!important;transform:translateX(-50%)!important;
-  width:24px!important;height:24px!important;display:block!important;
-  border:0!important;border-radius:0!important;background:transparent!important;
-  box-shadow:none!important;filter:none!important;animation:tonDrift 3.8s ease-in-out infinite!important;
-}
-.hero-logo .ton-float:before,.hero-logo .ton-float:after{display:none!important;content:none!important}
-.hero-logo .ton-float img{
-  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+  position:absolute!important;z-index:5!important;
+  left:calc(50% + 78px)!important;right:auto!important;
+  top:70px!important;bottom:auto!important;
+  width:24px!important;height:24px!important;
+  display:block!important;transform:none!important;
   border:0!important;border-radius:0!important;background:transparent!important;
   box-shadow:none!important;filter:none!important;
+  animation:kavixoTonDrift 3.8s ease-in-out infinite!important;
+}
+.hero-logo .ton-float:before,.hero-logo .ton-float:after{
+  display:none!important;content:none!important;
+}
+.hero-logo .ton-float img{
+  display:block!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  filter:brightness(0) saturate(100%) invert(76%) sepia(53%) saturate(620%) hue-rotate(5deg) brightness(96%) contrast(92%) drop-shadow(0 2px 2px #6e4b12)!important;
+}
+@keyframes kavixoTonDrift{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+@media(max-width:390px){
+  .hero-logo .ton-float{left:calc(50% + 69px)!important;top:61px!important;width:22px!important;height:22px!important}
 }
