@@ -1,0 +1,16 @@
+/* KAVIXO requested polish: a single floating TON mark above the token, with no badge/circle/glow. */
+.hero-logo{position:relative!important;isolation:isolate!important}
+.hero-logo:after{display:none!important;content:none!important}
+.hero-logo .ton-float{
+  position:absolute!important;z-index:5!important;left:50%!important;right:auto!important;
+  top:2px!important;bottom:auto!important;transform:translateX(-50%)!important;
+  width:24px!important;height:24px!important;display:block!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;filter:none!important;animation:tonDrift 3.8s ease-in-out infinite!important;
+}
+.hero-logo .ton-float:before,.hero-logo .ton-float:after{display:none!important;content:none!important}
+.hero-logo .ton-float img{
+  display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;filter:none!important;
+}
