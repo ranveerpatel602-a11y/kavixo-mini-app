@@ -253,6 +253,10 @@ app.delete('/api/admin/channels/:id', auth, admin, async (req,res) => {
   if (!r.rowCount) return res.status(404).json({error:'Channel not found'});
   res.json({ok:true});
 });
+app.get('/api/channels', async (_req,res) => {
+  const {rows}=await pool.query('SELECT id,platform,title,url FROM community_channels WHERE active=TRUE ORDER BY created_at DESC');
+  res.json({channels:rows});
+});
 app.get('/api/missions', async (_req,res) => {
   const {rows}=await pool.query('SELECT id,title,description,reward,icon FROM app_missions WHERE active=TRUE ORDER BY id');
   res.json({missions:rows});
