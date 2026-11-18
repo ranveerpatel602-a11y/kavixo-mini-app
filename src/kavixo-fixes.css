@@ -1,29 +1,40 @@
-/* KAVIXO floating TON: rich metallic gold, tucked close to the upper-right of the coin. */
+/* KAVIXO TON planet orbit: compact antique-gold mark with a dark inner core. */
 .hero-logo{position:relative!important;isolation:isolate!important}
 .hero-logo .ton-float{
   position:absolute!important;z-index:5!important;
-  left:calc(50% + 63px)!important;right:auto!important;
-  top:42px!important;bottom:auto!important;
-  width:23px!important;height:23px!important;
+  left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
+  width:17px!important;height:17px!important;
+  margin:-8.5px 0 0 -8.5px!important;
   display:block!important;transform:none!important;
   border:0!important;border-radius:0!important;background:transparent!important;
   box-shadow:none!important;filter:none!important;
-  animation:kavixoTonDrift 3.8s ease-in-out infinite!important;
+  animation:kavixoTonOrbit 10s linear infinite!important;
+  will-change:transform;
 }
-.hero-logo .ton-float:before,.hero-logo .ton-float:after{
-  display:none!important;content:none!important;
+.hero-logo .ton-float:before{display:none!important;content:none!important}
+.hero-logo .ton-float:after{
+  content:""!important;display:block!important;
+  position:absolute!important;left:50%!important;top:50%!important;
+  width:4px!important;height:4px!important;
+  margin:-2px 0 0 -2px!important;
+  background:#17130d!important;border-radius:1px!important;
+  transform:rotate(45deg)!important;pointer-events:none!important;
 }
 .hero-logo .ton-float img{
   display:block!important;width:100%!important;height:100%!important;
   object-fit:contain!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;
-  /* Deep champagne/antique gold rather than bright yellow. */
+  /* Muted champagne / antique gold, not bright yellow. */
   filter:brightness(0) saturate(100%) invert(61%) sepia(35%) saturate(520%) hue-rotate(8deg) brightness(88%) contrast(94%) drop-shadow(0 1px 1px #594018)!important;
 }
-@keyframes kavixoTonDrift{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-4px)}
+@keyframes kavixoTonOrbit{
+  from{transform:rotate(0deg) translateX(76px) rotate(0deg)}
+  to{transform:rotate(360deg) translateX(76px) rotate(-360deg)}
 }
 @media(max-width:390px){
-  .hero-logo .ton-float{left:calc(50% + 55px)!important;top:37px!important;width:21px!important;height:21px!important}
+  .hero-logo .ton-float{width:15px!important;height:15px!important;margin:-7.5px 0 0 -7.5px!important}
+  @keyframes kavixoTonOrbit{
+    from{transform:rotate(0deg) translateX(66px) rotate(0deg)}
+    to{transform:rotate(360deg) translateX(66px) rotate(-360deg)}
+  }
 }
