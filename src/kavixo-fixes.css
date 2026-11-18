@@ -1,10 +1,10 @@
-/* KAVIXO floating TON: closer to the main coin, with the app's warm gold finish. */
+/* KAVIXO floating TON: rich metallic gold, tucked close to the upper-right of the coin. */
 .hero-logo{position:relative!important;isolation:isolate!important}
 .hero-logo .ton-float{
   position:absolute!important;z-index:5!important;
-  left:calc(50% + 66px)!important;right:auto!important;
-  top:70px!important;bottom:auto!important;
-  width:24px!important;height:24px!important;
+  left:calc(50% + 63px)!important;right:auto!important;
+  top:42px!important;bottom:auto!important;
+  width:23px!important;height:23px!important;
   display:block!important;transform:none!important;
   border:0!important;border-radius:0!important;background:transparent!important;
   box-shadow:none!important;filter:none!important;
@@ -17,12 +17,13 @@
   display:block!important;width:100%!important;height:100%!important;
   object-fit:contain!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;
-  filter:brightness(0) saturate(100%) invert(72%) sepia(72%) saturate(560%) hue-rotate(4deg) brightness(102%) contrast(96%) drop-shadow(0 1px 1px #805719)!important;
+  /* Deep champagne/antique gold rather than bright yellow. */
+  filter:brightness(0) saturate(100%) invert(61%) sepia(35%) saturate(520%) hue-rotate(8deg) brightness(88%) contrast(94%) drop-shadow(0 1px 1px #594018)!important;
 }
 @keyframes kavixoTonDrift{
   0%,100%{transform:translateY(0)}
   50%{transform:translateY(-4px)}
 }
 @media(max-width:390px){
-  .hero-logo .ton-float{left:calc(50% + 58px)!important;top:61px!important;width:22px!important;height:22px!important}
+  .hero-logo .ton-float{left:calc(50% + 55px)!important;top:37px!important;width:21px!important;height:21px!important}
 }
