@@ -77,6 +77,14 @@ async function migrate() {
       ('Explore KAVIXO roadmap','Discover upcoming project milestones.',100,'route')
     ) AS v(title,description,reward,icon)
     WHERE NOT EXISTS (SELECT 1 FROM app_missions);
+    CREATE TABLE IF NOT EXISTS mission_claims (
+      id BIGSERIAL PRIMARY KEY,
+      mission_id BIGINT NOT NULL REFERENCES app_missions(id) ON DELETE CASCADE,
+      telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      reward INTEGER NOT NULL,
+      claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(mission_id,telegram_id)
+    );
     CREATE TABLE IF NOT EXISTS admin_balance_adjustments (
       id BIGSERIAL PRIMARY KEY,
       admin_telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
@@ -307,9 +315,29 @@ app.get('/api/channels', async (_req,res) => {
   const {rows}=await pool.query('SELECT id,platform,title,url FROM community_channels WHERE active=TRUE ORDER BY created_at DESC');
   res.json({channels:rows});
 });
-app.get('/api/missions', async (_req,res) => {
-  const {rows}=await pool.query('SELECT id,title,description,reward,icon FROM app_missions WHERE active=TRUE ORDER BY id');
+app.get('/api/missions', auth, async (req,res) => {
+  const {rows}=await pool.query("SELECT m.id,m.title,m.description,m.reward,m.icon,(mc.id IS NOT NULL) AS claimed FROM app_missions m LEFT JOIN mission_claims mc ON mc.mission_id=m.id AND mc.telegram_id=$1 WHERE m.active=TRUE ORDER BY m.id",[req.tgUser.id]);
   res.json({missions:rows});
+});
+app.post('/api/missions/:id/claim', auth, async (req,res) => {
+  const id=Number(req.params.id);
+  if(!Number.isSafeInteger(id)||id<1) return res.status(400).json({error:'Invalid mission'});
+  const client=await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const mission=await client.query('SELECT id,reward FROM app_missions WHERE id=$1 AND active=TRUE FOR UPDATE',[id]);
+    if(!mission.rowCount) throw new Error('This mission is no longer available');
+    const already=await client.query('SELECT id FROM mission_claims WHERE mission_id=$1 AND telegram_id=$2',[id,req.tgUser.id]);
+    if(already.rowCount) throw new Error('You have already claimed this mission');
+    const reward=Number(mission.rows[0].reward);
+    await client.query('INSERT INTO mission_claims(mission_id,telegram_id,reward) VALUES($1,$2,$3)',[id,req.tgUser.id,reward]);
+    const updated=await client.query('UPDATE kvxn_users SET balance=balance+$1 WHERE telegram_id=$2 RETURNING balance',[reward,req.tgUser.id]);
+    await client.query('COMMIT');
+    res.json({ok:true,reward,balance:updated.rows[0].balance});
+  } catch(e) {
+    await client.query('ROLLBACK');
+    res.status(400).json({error:e.message||'Could not claim mission'});
+  } finally {client.release();}
 });
 app.get('/api/admin/missions', auth, admin, async (_req,res) => {
   const {rows}=await pool.query('SELECT id,title,description,reward,icon,active FROM app_missions ORDER BY id DESC');
