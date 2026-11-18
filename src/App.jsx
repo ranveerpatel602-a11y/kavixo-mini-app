@@ -23,7 +23,7 @@ return <><div className={'boot-screen '+(booting?'':'boot-hidden')} aria-hidden=
 
 {tab==='mine'&&<section className="section mining-home">
 <div className="mine-title"><div><small>KAVIXO · PHASE 1</small><h2>MINING STATION</h2><p>Start your KAVIXO mining session</p></div><em className={mining?'online':'offline'}><i/>{mining?'MINING LIVE':'STANDBY'}</em></div>
-<div className="hero-logo"><img src="https://i.ibb.co/RpbvwLPQ/57238-removebg-preview.png" alt="KAVIXO official logo"/><span className="ton-float ton-float-a"><img src="https://cdn.simpleicons.org/ton/30A1F5" alt="TON"/></span><span className="ton-float ton-float-b"><img src="https://cdn.simpleicons.org/ton/30A1F5" alt="TON"/></span><span className="ton-float ton-float-c"><img src="https://cdn.simpleicons.org/ton/30A1F5" alt="TON"/></span><span className="ton-float ton-float-d"><img src="https://cdn.simpleicons.org/ton/30A1F5" alt="TON"/></span><div className="hero-wordmark">KAVIXO</div><small>THE NEXT DIGITAL FRONTIER</small></div>
+<div className="hero-logo"><img src="https://i.ibb.co/RpbvwLPQ/57238-removebg-preview.png" alt="KAVIXO official logo"/><span className="ton-float"><img src="https://cdn.simpleicons.org/ton/30A1F5" alt="TON"/></span><div className="hero-wordmark">KAVIXO</div><small>THE NEXT DIGITAL FRONTIER</small></div>
 <div className="mine-label"><span>⛏</span> MINING <span className="phase-pill">PHASE 1</span></div>
 <MiningSystem/>
 <div className="mining-console">
