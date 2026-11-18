@@ -77,6 +77,14 @@ async function migrate() {
       ('Explore KAVIXO roadmap','Discover upcoming project milestones.',100,'route')
     ) AS v(title,description,reward,icon)
     WHERE NOT EXISTS (SELECT 1 FROM app_missions);
+    CREATE TABLE IF NOT EXISTS channel_claims (
+      id BIGSERIAL PRIMARY KEY,
+      channel_id BIGINT NOT NULL REFERENCES community_channels(id) ON DELETE CASCADE,
+      telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
+      reward INTEGER NOT NULL DEFAULT 100,
+      claimed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(channel_id,telegram_id)
+    );
     CREATE TABLE IF NOT EXISTS mission_claims (
       id BIGSERIAL PRIMARY KEY,
       mission_id BIGINT NOT NULL REFERENCES app_missions(id) ON DELETE CASCADE,
@@ -311,9 +319,29 @@ app.delete('/api/admin/channels/:id', auth, admin, async (req,res) => {
   if (!r.rowCount) return res.status(404).json({error:'Channel not found'});
   res.json({ok:true});
 });
-app.get('/api/channels', async (_req,res) => {
-  const {rows}=await pool.query('SELECT id,platform,title,url FROM community_channels WHERE active=TRUE ORDER BY created_at DESC');
+app.get('/api/channels', auth, async (req,res) => {
+  const {rows}=await pool.query("SELECT c.id,c.platform,c.title,c.url,(cc.id IS NOT NULL) AS claimed FROM community_channels c LEFT JOIN channel_claims cc ON cc.channel_id=c.id AND cc.telegram_id=$1 WHERE c.active=TRUE ORDER BY c.created_at DESC",[req.tgUser.id]);
   res.json({channels:rows});
+});
+app.post('/api/channels/:id/claim', auth, async (req,res) => {
+  const id=Number(req.params.id);
+  if(!Number.isSafeInteger(id)||id<1) return res.status(400).json({error:'Invalid channel task'});
+  const client=await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const channel=await client.query('SELECT id FROM community_channels WHERE id=$1 AND active=TRUE FOR UPDATE',[id]);
+    if(!channel.rowCount) throw new Error('This channel task is no longer available');
+    const already=await client.query('SELECT id FROM channel_claims WHERE channel_id=$1 AND telegram_id=$2',[id,req.tgUser.id]);
+    if(already.rowCount) throw new Error('You have already claimed this channel task');
+    const reward=100;
+    await client.query('INSERT INTO channel_claims(channel_id,telegram_id,reward) VALUES($1,$2,$3)',[id,req.tgUser.id,reward]);
+    const updated=await client.query('UPDATE kvxn_users SET balance=balance+$1 WHERE telegram_id=$2 RETURNING balance',[reward,req.tgUser.id]);
+    await client.query('COMMIT');
+    res.json({ok:true,reward,balance:updated.rows[0].balance});
+  } catch(e) {
+    await client.query('ROLLBACK');
+    res.status(400).json({error:e.message||'Could not claim channel task'});
+  } finally {client.release();}
 });
 app.get('/api/missions', auth, async (req,res) => {
   const {rows}=await pool.query("SELECT m.id,m.title,m.description,m.reward,m.icon,(mc.id IS NOT NULL) AS claimed FROM app_missions m LEFT JOIN mission_claims mc ON mc.mission_id=m.id AND mc.telegram_id=$1 WHERE m.active=TRUE ORDER BY m.id",[req.tgUser.id]);
