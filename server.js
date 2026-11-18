@@ -24,10 +24,6 @@ async function migrate() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE kvxn_users ADD COLUMN IF NOT EXISTS mining_remainder NUMERIC(12,3) NOT NULL DEFAULT 0;
-    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_due BOOLEAN NOT NULL DEFAULT FALSE;
-    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ;
-    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_attempts INTEGER NOT NULL DEFAULT 0;
-    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_last_attempt_at TIMESTAMPTZ;
     CREATE TABLE IF NOT EXISTS mining_sessions (
       id BIGSERIAL PRIMARY KEY,
       telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
@@ -38,6 +34,10 @@ async function migrate() {
       points_credited BIGINT NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','completed'))
     );
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_due BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_attempts INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_last_attempt_at TIMESTAMPTZ;
     CREATE UNIQUE INDEX IF NOT EXISTS mining_one_active_session_per_user ON mining_sessions(telegram_id) WHERE status='active';
     CREATE TABLE IF NOT EXISTS referrals (
       id BIGSERIAL PRIMARY KEY,
