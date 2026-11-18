@@ -100,3 +100,11 @@ nav button.active{color:#23e9d5!important}
 .app .mine-stats b{font-size:15px!important}
 .app nav small{font-size:11px!important}
 .app .start-mine,.app .goldbtn{font-size:15px!important;min-height:48px!important}
+
+
+.rank{cursor:pointer;display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid var(--kx-line);border-radius:12px;background:rgba(0,218,205,.09);color:#70fff0;font:inherit;font-size:11px;font-weight:800;letter-spacing:.5px}
+.rank svg{width:16px;height:16px}
+.community-task-list{display:grid;gap:9px;margin-bottom:12px}
+.community-task-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(0,210,200,.1);color:#60f6e7;flex:none}
+.task button:not(:disabled){display:inline-flex;align-items:center;gap:5px;padding:9px 11px;border:1px solid var(--kx-line);border-radius:9px;background:rgba(0,215,202,.12);color:#76fff0;font-size:11px;font-weight:800;white-space:nowrap}
+.task button svg{width:14px;height:14px}
