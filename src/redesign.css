@@ -108,3 +108,66 @@ nav button.active{color:#23e9d5!important}
 .community-task-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:rgba(0,210,200,.1);color:#60f6e7;flex:none}
 .task button:not(:disabled){display:inline-flex;align-items:center;gap:5px;padding:9px 11px;border:1px solid var(--kx-line);border-radius:9px;background:rgba(0,215,202,.12);color:#76fff0;font-size:11px;font-weight:800;white-space:nowrap}
 .task button svg{width:14px;height:14px}
+
+
+/* FIX: bottom navigation must never squeeze labels together on narrow Telegram screens */
+.app>nav{
+  box-sizing:border-box!important;
+  width:calc(100% - 20px)!important;
+  max-width:496px!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  justify-content:flex-start!important;
+  align-items:stretch!important;
+  gap:2px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none!important;
+  padding:8px 7px!important;
+}
+.app>nav::-webkit-scrollbar{display:none!important}
+.app>nav>button{
+  box-sizing:border-box!important;
+  flex:0 0 58px!important;
+  width:58px!important;
+  min-width:58px!important;
+  max-width:58px!important;
+  min-height:58px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  padding:6px 2px!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+}
+.app>nav>button svg{
+  display:block!important;
+  flex:0 0 21px!important;
+  width:21px!important;
+  height:21px!important;
+}
+.app>nav>button small{
+  display:block!important;
+  width:100%!important;
+  max-width:54px!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:9px!important;
+  line-height:1.15!important;
+  font-weight:600!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+  word-break:normal!important;
+}
+.app>main{padding-bottom:112px!important}
+.app>footer{padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+@media(max-width:360px){
+  .app>nav>button{flex-basis:54px!important;width:54px!important;min-width:54px!important;max-width:54px!important}
+  .app>nav>button small{font-size:8.5px!important}
+}
