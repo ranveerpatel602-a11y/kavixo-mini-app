@@ -24,6 +24,9 @@ async function migrate() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE kvxn_users ADD COLUMN IF NOT EXISTS mining_remainder NUMERIC(12,3) NOT NULL DEFAULT 0;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_due BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_sent_at TIMESTAMPTZ;
+    ALTER TABLE mining_sessions ADD COLUMN IF NOT EXISTS notification_attempts INTEGER NOT NULL DEFAULT 0;
     CREATE TABLE IF NOT EXISTS mining_sessions (
       id BIGSERIAL PRIMARY KEY,
       telegram_id TEXT NOT NULL REFERENCES kvxn_users(telegram_id),
@@ -152,11 +155,78 @@ function admin(req,res,next) {
   next();
 }
 function cleanCode(value) {
-  return String(value || '').trim().toUpperCase().replace(/\s+/g,'').slice(0,40);
+  return String(value || '').trim().toUpperCase().replace(/\\s+/g,'').slice(0,40);
+}
+
+const MAX_MINING_SECONDS = 8 * 60 * 60;
+let miningJobRunning = false;
+
+async function processMiningJobs(telegramId = null) {
+  if (miningJobRunning) return;
+  miningJobRunning = true;
+  try {
+    // Complete expired sessions in short, row-locked transactions. This is independent of app/browser activity.
+    for (let i = 0; i < 100; i++) {
+      const client = await pool.connect();
+      let completed = false;
+      try {
+        await client.query('BEGIN');
+        const params = telegramId ? [telegramId] : [];
+        const filter = telegramId ? ' AND telegram_id=$1' : '';
+        const found = await client.query(
+          `SELECT id,telegram_id,rate FROM mining_sessions WHERE status='active' AND started_at <= NOW() - INTERVAL '8 hours'${filter} ORDER BY started_at FOR UPDATE SKIP LOCKED LIMIT 1`,
+          params
+        );
+        if (!found.rowCount) { await client.query('COMMIT'); break; }
+        const session = found.rows[0];
+        const user = await client.query('SELECT balance,mining_remainder FROM kvxn_users WHERE telegram_id=$1 FOR UPDATE',[session.telegram_id]);
+        const raw = MAX_MINING_SECONDS * Number(session.rate) + Number(user.rows[0]?.mining_remainder || 0);
+        const credited = Math.floor(raw + 1e-9);
+        const remainder = Number((raw - credited).toFixed(3));
+        await client.query('UPDATE kvxn_users SET balance=balance+$1::bigint,mining_remainder=$2 WHERE telegram_id=$3',[credited,remainder,session.telegram_id]);
+        await client.query("UPDATE mining_sessions SET status='completed',ended_at=started_at + INTERVAL '8 hours',elapsed_seconds=$1,points_credited=$2,notification_due=TRUE WHERE id=$3",[MAX_MINING_SECONDS,credited,session.id]);
+        await client.query('COMMIT');
+        completed = true;
+      } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
+      } finally { client.release(); }
+      if (!completed) break;
+    }
+
+    if (!process.env.BOT_TOKEN) return;
+    // Retry failed Telegram sends; row locks prevent parallel workers from sending the same session concurrently.
+    for (let i = 0; i < 100; i++) {
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const due = await client.query("SELECT id,telegram_id FROM mining_sessions WHERE notification_due=TRUE AND notification_sent_at IS NULL ORDER BY ended_at FOR UPDATE SKIP LOCKED LIMIT 1");
+        if (!due.rowCount) { await client.query('COMMIT'); break; }
+        const session = due.rows[0];
+        let sent = false;
+        try {
+          const response = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({chat_id:session.telegram_id,text:'⛏️ Your Kavixo Mining Session Has Ended!\\n\\nYour 8-hour mining session is complete, and your earned $KVXN rewards have been added to your balance.\\n\\nTo continue earning rewards, open the Kavixo Miner bot and start a new mining session.\\n\\nKeep mining. Keep growing with Kavixo!'})
+          });
+          const result = await response.json().catch(()=>({ok:false}));
+          sent = Boolean(response.ok && result.ok);
+        } catch (e) { console.error('Mining notification delivery failed:',e.message); }
+        if (sent) await client.query('UPDATE mining_sessions SET notification_sent_at=NOW(),notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
+        else await client.query('UPDATE mining_sessions SET notification_attempts=notification_attempts+1 WHERE id=$1',[session.id]);
+        await client.query('COMMIT');
+      } catch (e) {
+        await client.query('ROLLBACK');
+        console.error('Mining notification worker error:',e.message);
+        break;
+      } finally { client.release(); }
+    }
+  } finally { miningJobRunning = false; }
 }
 
 app.get('/api/health', (_req,res) => res.json({ ok:true }));
 app.get('/api/me', auth, async (req,res) => {
+  await processMiningJobs(req.tgUser.id);
   const [userResult, miningResult] = await Promise.all([
     pool.query('SELECT telegram_id,first_name,balance FROM kvxn_users WHERE telegram_id=$1',[req.tgUser.id]),
     pool.query("SELECT started_at,rate FROM mining_sessions WHERE telegram_id=$1 AND status='active' ORDER BY id DESC LIMIT 1",[req.tgUser.id])
@@ -167,6 +237,7 @@ app.get('/api/me', auth, async (req,res) => {
 });
 app.post('/api/mining/start', auth, async (req,res) => {
   try {
+    await processMiningJobs(req.tgUser.id);
     await pool.query("INSERT INTO mining_sessions(telegram_id,rate) VALUES($1,0.025) ON CONFLICT DO NOTHING",[req.tgUser.id]);
     const {rows}=await pool.query("SELECT started_at,rate FROM mining_sessions WHERE telegram_id=$1 AND status='active' ORDER BY id DESC LIMIT 1",[req.tgUser.id]);
     if(!rows[0]) return res.status(409).json({error:'Could not start mining. Please try again.'});
@@ -184,15 +255,16 @@ app.post('/api/mining/stop', auth, async (req,res) => {
       return res.json({ok:true,creditedPoints:0,balance:current.rows[0]?.balance ?? 0});
     }
     const session=found.rows[0];
-    const elapsed=Math.max(0,Math.floor((Date.now()-new Date(session.started_at).getTime())/1000));
+    const elapsed=Math.min(MAX_MINING_SECONDS,Math.max(0,Math.floor((Date.now()-new Date(session.started_at).getTime())/1000)));
     const user=await client.query('SELECT balance,mining_remainder FROM kvxn_users WHERE telegram_id=$1 FOR UPDATE',[req.tgUser.id]);
     const raw=elapsed*Number(session.rate)+Number(user.rows[0].mining_remainder||0);
     const credited=Math.floor(raw+1e-9);
     const remainder=Number((raw-credited).toFixed(3));
     const updated=await client.query('UPDATE kvxn_users SET balance=balance+$1::bigint,mining_remainder=$2 WHERE telegram_id=$3 RETURNING balance',[credited,remainder,req.tgUser.id]);
-    await client.query("UPDATE mining_sessions SET status='completed',ended_at=NOW(),elapsed_seconds=$1,points_credited=$2 WHERE id=$3",[elapsed,credited,session.id]);
+    await client.query("UPDATE mining_sessions SET status='completed',ended_at=NOW(),elapsed_seconds=$1,points_credited=$2,notification_due=$3 WHERE id=$4",[elapsed,credited,elapsed>=MAX_MINING_SECONDS,session.id]);
     await client.query('COMMIT');
     res.json({ok:true,elapsedSeconds:elapsed,creditedPoints:credited,balance:updated.rows[0].balance});
+    if (elapsed>=MAX_MINING_SECONDS) processMiningJobs(req.tgUser.id).catch(e=>console.error('Mining job error:',e.message));
   } catch(e) {
     await client.query('ROLLBACK');
     res.status(500).json({error:'Could not credit mining rewards. Your active session is preserved; please retry.'});
@@ -396,4 +468,9 @@ app.get('/api/channels', async (_req,res) => {
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 app.use(express.static(path.join(__dirname,'dist')));
 app.get('*',(req,res)=>res.sendFile(path.join(__dirname,'dist','index.html')));
-migrate().then(()=>app.listen(port,'0.0.0.0',()=>console.log('KAVIXO API listening on '+port))).catch(err=>{console.error('Database initialization failed',err);process.exit(1)});
+migrate().then(()=>{
+  app.listen(port,'0.0.0.0',()=>console.log('KAVIXO API listening on '+port));
+  processMiningJobs().catch(e=>console.error('Initial mining job error:',e.message));
+  const miningWorker=setInterval(()=>processMiningJobs().catch(e=>console.error('Mining worker error:',e.message)),60_000);
+  miningWorker.unref?.();
+}).catch(err=>{console.error('Database initialization failed',err);process.exit(1)});
