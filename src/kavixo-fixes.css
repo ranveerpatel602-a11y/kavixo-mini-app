@@ -5,10 +5,10 @@
   left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
   width:17px!important;height:17px!important;
   margin:-8.5px 0 0 -8.5px!important;
-  display:block!important;transform:none!important;
+  display:block!important;
   border:0!important;border-radius:0!important;background:transparent!important;
   box-shadow:none!important;filter:none!important;
-  animation:kavixoTonOrbit 10s linear infinite!important;
+  animation:kavixoTonOrbit 16s linear infinite!important;
   will-change:transform;
 }
 .hero-logo .ton-float:before{display:none!important;content:none!important}
