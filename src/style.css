@@ -425,3 +425,33 @@ html,body{min-height:100%;background:#070707}
   .hero-logo .ton-float{left:calc(50% + 29px);top:34px;width:32px;height:32px}
   .hero-logo .ton-float img{width:19px;height:19px}
 }
+
+
+/* Referrals: visible personal link and invitation history. */
+.referral-panel h3{font-size:18px;margin:5px 0 0;color:#f5f7ff}
+.referral-count-pill{display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:999px;background:rgba(64,190,255,.12);border:1px solid rgba(90,190,255,.32);color:#8bd8ff;font-size:10px;font-weight:800;white-space:nowrap}
+.referral-count-pill svg{width:13px;height:13px}
+.invite-link-box{margin:14px 0 10px;padding:12px;border:1px solid rgba(93,166,255,.25);border-radius:12px;background:rgba(6,17,35,.7);display:flex;flex-direction:column;gap:8px;min-width:0}
+.invite-link-box small{font-size:9px;letter-spacing:1px;color:#86a5ca;font-weight:800}
+.invite-link-box code{display:block;color:#d8eaff;font-size:11px;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.referral-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.referral-actions .goldbtn,.share-referral{min-height:42px;display:flex;align-items:center;justify-content:center;gap:7px}
+.share-referral{border:1px solid rgba(91,174,255,.42);border-radius:11px;background:linear-gradient(145deg,#123f70,#09284c);color:#c8eaff;font-size:11px;font-weight:800}
+.share-referral svg,.referral-actions .goldbtn svg{width:15px;height:15px}
+.invite-history .between{align-items:center}
+.invite-history .between strong{color:#79d6ff;font-size:11px}
+.invite-row{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,.07)}
+.invite-row:last-child{border-bottom:0}
+.invite-person{min-width:0;flex:1}
+.invite-person b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.invite-person small{display:block;margin-top:3px;color:#90a3bd;font-size:10px}
+.invite-status{font-size:9px;font-weight:800;color:#71e0b4;letter-spacing:.6px}
+.invite-empty{padding:18px 8px;text-align:center;color:#a8bad2;display:flex;align-items:center;flex-direction:column;gap:7px}
+.invite-empty svg{width:23px;height:23px;color:#7ecbff}
+.invite-empty small{font-size:10px;line-height:1.5}
+
+/* Premium metallic depth for the existing single floating TON badge. */
+.hero-logo .ton-float{width:40px;height:40px;border:1px solid #b8e9ff;background:radial-gradient(ellipse at 27% 17%,#f1fcff 0%,#8bdcff 10%,#35b5ff 26%,#0879d5 53%,#06468f 76%,#022653 100%);box-shadow:0 1px 0 #bdeaff,0 3px 0 #06447e,0 7px 0 #032b56,0 11px 17px #000b,0 0 18px #28aaff99,inset 0 2px 4px #fff,inset 0 -5px 8px #001e4b;filter:drop-shadow(0 2px 2px #00172d)}
+.hero-logo .ton-float:before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px solid #d9f5ff88;box-shadow:inset 0 1px 3px #fff9;pointer-events:none}
+.hero-logo .ton-float img{position:relative;z-index:1;width:23px;height:23px;filter:brightness(0) invert(1) drop-shadow(0 2px 2px #003b70)}
+@media(max-width:390px){.hero-logo .ton-float{width:35px;height:35px}.hero-logo .ton-float img{width:20px;height:20px}}
