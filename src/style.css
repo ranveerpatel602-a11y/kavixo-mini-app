@@ -364,3 +364,21 @@ html,body{min-height:100%;background:#070707}
 .kavixo-hand-stage.kavixo-artwork-stage:before,.kavixo-hand-stage.kavixo-artwork-stage:after{display:none!important;content:none!important}
 .kavixo-hand-stage .kavixo-floating-coin,.kavixo-hand-stage .kavixo-floating-hand{image-rendering:auto!important;filter:none!important;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important}
 @media(max-width:390px){.kavixo-hand-stage.kavixo-artwork-stage{height:390px!important;min-height:390px!important;max-height:390px!important}}
+
+/* Task claim actions and tap-to-open rank progression modal */
+.task-actions{display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:92px}
+.task-actions button{white-space:nowrap;justify-content:center}
+.task-actions button:disabled{opacity:.72;cursor:default}
+.rank-modal-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(3,8,20,.78);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px}
+.rank-modal{width:min(100%,390px);max-height:80vh;overflow:auto;background:#101a2b;border:1px solid rgba(112,166,255,.25);border-radius:20px;padding:20px;box-shadow:0 24px 80px rgba(0,0,0,.5);color:#f4f7ff}
+.rank-modal .between{align-items:center;margin-bottom:14px}
+.rank-modal h3{font-size:20px;margin:4px 0 0}
+.rank-modal .between>button{border:0;border-radius:10px;background:rgba(255,255,255,.08);color:inherit;font-size:24px;width:34px;height:34px}
+.rank-modal-row{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;border:1px solid rgba(255,255,255,.08);border-radius:12px;margin:8px 0;background:rgba(255,255,255,.025)}
+.rank-modal-row span{display:flex;flex-direction:column;gap:3px}
+.rank-modal-row span b{letter-spacing:.08em;font-size:13px}
+.rank-modal-row span small{font-size:9px;color:#65d9b2;letter-spacing:.1em}
+.rank-modal-row strong{font-size:11px;color:#aab9d3}
+.rank-modal-row.current{border-color:#55d6aa;background:rgba(85,214,170,.09)}
+.rank-modal>p{font-size:12px;color:#b8c5d9;line-height:1.5;margin:14px 2px 0}
+@media(max-width:380px){.task-actions{min-width:78px}.task-actions button{padding-left:8px;padding-right:8px;font-size:10px}}
