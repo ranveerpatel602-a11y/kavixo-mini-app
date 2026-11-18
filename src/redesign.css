@@ -57,3 +57,26 @@ input:focus,textarea:focus,select:focus{border-color:#dca84f!important;box-shado
 .boot-logo img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:drop-shadow(0 0 16px rgba(232,183,79,.32))!important;animation:none!important}
 .boot-word,.boot-tag,.boot-loader,.boot-status,.boot-sub{display:none!important}
 .kavixo-hand-stage,.kavixo-artwork-stage,.kavixo-floating-hand,.kavixo-floating-coin,.robot-hand-wrap,.robot-hand,.coin-aura,.hand-energy-ring,.hand-circuit,.hand-stage-caption{display:none!important}
+
+
+/* JVault-inspired teal glass refresh + floating TON marks */
+:root{--kx-bg:#050d12;--kx-panel:rgba(7,35,39,.88);--kx-panel-2:rgba(8,47,51,.94);--kx-gold:#20e6d2;--kx-gold-2:#00a9b6;--kx-text:#e8ffff;--kx-muted:#8caeb3;--kx-line:rgba(28,224,211,.22);--kx-glow:0 0 32px rgba(0,220,210,.18)}
+body{background:radial-gradient(ellipse at 50% 8%,rgba(0,185,176,.18),transparent 38%),radial-gradient(ellipse at 0% 65%,rgba(0,120,150,.12),transparent 34%),linear-gradient(180deg,#050a11 0%,#06151b 58%,#03090f 100%)!important}
+body:before{background-image:linear-gradient(rgba(57,235,222,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(57,235,222,.035) 1px,transparent 1px)}
+.app:before{background:radial-gradient(circle,rgba(0,220,207,.13),transparent 70%)}
+section,.section,.dashboard-panel,.profile-panel,.mission-card,.task-card,.wallet-card,.stat-card,.leaderboard-card,.nft-card,.quick button,.mine-stats>div{background:linear-gradient(145deg,rgba(7,48,51,.92),rgba(5,18,25,.96))!important;border-color:var(--kx-line)!important;box-shadow:inset 0 1px rgba(188,255,250,.055),0 12px 34px rgba(0,0,0,.28),0 0 22px rgba(0,206,193,.045)!important}
+.hero-logo{isolation:isolate}
+.hero-logo:after{background:radial-gradient(circle,rgba(0,221,207,.2),transparent 70%)}
+.hero-logo>img{position:relative;z-index:2;filter:drop-shadow(0 0 18px rgba(0,230,220,.4))!important}
+.hero-logo .ton-float{position:absolute;z-index:3;display:grid;place-items:center;width:29px;height:29px;pointer-events:none;animation:tonDrift 4.8s ease-in-out infinite}
+.hero-logo .ton-float img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 9px rgba(48,161,245,.8))!important}
+.hero-logo .ton-float-a{left:12%;top:18%;animation-delay:-.4s}
+.hero-logo .ton-float-b{right:13%;top:8%;width:23px;height:23px;animation-delay:-2s}
+.hero-logo .ton-float-c{left:20%;bottom:8%;width:21px;height:21px;animation-delay:-3.1s}
+.hero-logo .ton-float-d{right:19%;bottom:3%;width:27px;height:27px;animation-delay:-1.3s}
+@keyframes tonDrift{0%,100%{transform:translate3d(0,0,0) rotate(-7deg)}50%{transform:translate3d(5px,-12px,0) rotate(8deg)}}
+.mine-title em,.badge,.status-pill{background:rgba(0,218,205,.1)!important;color:#70fff0!important;border-color:rgba(0,225,212,.3)!important}
+.mine-stats b,.balance-value,.stat-value{color:#74fff0!important}
+nav{background:rgba(3,16,23,.94)!important;border-top:1px solid rgba(28,224,211,.24)!important;backdrop-filter:blur(18px)}
+nav button.active{color:#23e9d5!important}
+.start-mine,.goldbtn{background:linear-gradient(100deg,#08dcbf,#00b9e8)!important;color:#03151a!important;box-shadow:0 0 24px rgba(0,220,205,.24)!important}
